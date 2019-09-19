@@ -1,0 +1,13 @@
+{
+    "name": "monitor",
+    "description": "mvc-paltform-by-mitismirza",
+    "require": {
+        "illuminate/database": "^6.0",
+        "illuminate/events": "^6.0"
+    },
+    "autoload": {
+        "classmap": [
+            "app/models"
+        ]
+    }
+}
