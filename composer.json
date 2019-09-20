@@ -3,7 +3,8 @@
     "description": "mvc-paltform-by-mitismirza",
     "require": {
         "illuminate/database": "^6.0",
-        "illuminate/events": "^6.0"
+        "illuminate/events": "^6.0",
+        "google/recaptcha": "^1.2"
     },
     "autoload": {
         "classmap": [
