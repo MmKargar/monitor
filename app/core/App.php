@@ -51,6 +51,7 @@ class App
 
     public function check_login($url)
     {
+
         if (!empty($url[0]) && !empty($url[1])) {
             if ($url[0] == 'login' && $url[1] == 'attemp' && $_SERVER['REQUEST_METHOD'] === 'POST') {
                 // attemp to login
@@ -73,7 +74,9 @@ class App
             // not logged in
             require_once '../app/controllers/login.php';
             $login = new Login;
+
             call_user_func_array([$login, 'index'], $this->params);
+            die();
             return '';
         }
     }

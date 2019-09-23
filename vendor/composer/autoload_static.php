@@ -21,6 +21,7 @@ class ComposerStaticInit6af064ce7e843af5c59fb62e64c1a066
         'R' => 
         array (
             'ReCaptcha\\' => 10,
+            'Rakit\\Validation\\' => 17,
         ),
         'P' => 
         array (
@@ -62,6 +63,10 @@ class ComposerStaticInit6af064ce7e843af5c59fb62e64c1a066
         array (
             0 => __DIR__ . '/..' . '/google/recaptcha/src/ReCaptcha',
         ),
+        'Rakit\\Validation\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/rakit/validation/src',
+        ),
         'Psr\\SimpleCache\\' => 
         array (
             0 => __DIR__ . '/..' . '/psr/simple-cache/src',
@@ -100,7 +105,18 @@ class ComposerStaticInit6af064ce7e843af5c59fb62e64c1a066
         ),
     );
 
+    public static $prefixesPsr0 = array (
+        'U' => 
+        array (
+            'Upload' => 
+            array (
+                0 => __DIR__ . '/..' . '/codeguy/upload/src',
+            ),
+        ),
+    );
+
     public static $classMap = array (
+        'DataLog' => __DIR__ . '/../..' . '/app/models/DataLog.php',
         'User' => __DIR__ . '/../..' . '/app/models/User.php',
     );
 
@@ -109,6 +125,7 @@ class ComposerStaticInit6af064ce7e843af5c59fb62e64c1a066
         return \Closure::bind(function () use ($loader) {
             $loader->prefixLengthsPsr4 = ComposerStaticInit6af064ce7e843af5c59fb62e64c1a066::$prefixLengthsPsr4;
             $loader->prefixDirsPsr4 = ComposerStaticInit6af064ce7e843af5c59fb62e64c1a066::$prefixDirsPsr4;
+            $loader->prefixesPsr0 = ComposerStaticInit6af064ce7e843af5c59fb62e64c1a066::$prefixesPsr0;
             $loader->classMap = ComposerStaticInit6af064ce7e843af5c59fb62e64c1a066::$classMap;
 
         }, null, ClassLoader::class);
