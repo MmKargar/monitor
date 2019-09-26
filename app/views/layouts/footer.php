@@ -76,7 +76,10 @@
     // day chart functions
 
 
-    function addData(chart, data) {
+    function addData(chart, data , labels = null ) {
+        if(labels){
+            chart.data.labels = labels;
+        }
         chart.data.datasets.forEach((dataset) => {
             dataset.data = data;
         });
@@ -146,10 +149,10 @@
     });
 
     // month chart
-    var month_data   = <?= $data['month_data'] ?>;
+    var month_data = <?= $data['month_data'] ?>;
     var month_labels = <?= $data['month_labels'] ?>;
     var ctx = document.getElementById('myChart1').getContext('2d');
-    var chart1 = new Chart(ctx, {
+    var month_chart = new Chart(ctx, {
         // The type of chart we want to create
         type: 'bar',
         // The data for our dataset
@@ -167,61 +170,151 @@
         options: {}
     });
 
-    function next_month(){
-        var day = {
+    function next_month() {
+        var m_data = {
             'month-date': document.getElementById("month-date").value,
             'month-year-date': document.getElementById("month-year-date").value,
             'action': 'next',
         };
+
         $.ajax({
             type: "POST",
-            url: "<?= PUBLIC_PATH ?>" + 'chart/get_day',
-            data: day,
+            url: "<?= PUBLIC_PATH ?>" + 'chart/get_month',
+            data: m_data,
             success: function(data) {
-                document.getElementById("day-date").value = data.pre;
-                addData(chart, data.data);
+                document.getElementById("month-date").value = data.month_date;
+                document.getElementById("month-year-date").value = data.month_year_date;
+                addData(month_chart, data.data);
             },
             dataType: 'json'
         });
     }
 
-    function pre_month(){
+    function pre_month() {
+        var m_data = {
+            'month-date': document.getElementById("month-date").value,
+            'month-year-date': document.getElementById("month-year-date").value,
+            'action': 'pre',
+        };
 
+        $.ajax({
+            type: "POST",
+            url: "<?= PUBLIC_PATH ?>" + 'chart/get_month',
+            data: m_data,
+            success: function(data) {
+                document.getElementById("month-date").value = data.month_date;
+                console.log(data.month_date);
+
+                document.getElementById("month-year-date").value = data.month_year_date;
+                addData(month_chart, data.data);
+            },
+            dataType: 'json'
+        });
     }
 
-    function month_change_month(){
+    function month_change() {
+        var m_data = {
+            'month-date': document.getElementById("month-date").value,
+            'month-year-date': document.getElementById("month-year-date").value,
+            'action': 'change',
+        };
 
+        $.ajax({
+            type: "POST",
+            url: "<?= PUBLIC_PATH ?>" + 'chart/get_month',
+            data: m_data,
+            success: function(data) {
+                addData(month_chart, data.data);
+            },
+            dataType: 'json'
+        });
     }
+    // END MONTH CHART
+    /////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////
 
-    function month_change_year(){
-
-    }
-
-    // end month chart
-
-    // chart 2
+    // YEAR CHART
+    var year_labels = <?= $data['year_labels'] ?>;
+    var year_data = <?= $data['year_data'] ?>;
     var ctx = document.getElementById('myChart2').getContext('2d');
-    var chart2 = new Chart(ctx, {
+    var year_chart = new Chart(ctx, {
         // The type of chart we want to create
         type: 'bar',
 
         // The data for our dataset
         data: {
-            labels: ['Jan 19', 'Feb 19', 'Mar 19', 'Apr 19', 'May 19', 'Jun 19', 'Jul 19', 'Aug 19', 'Sep 19', 'Oct 19', 'Nov 19', 'Dec 19'],
+            labels: year_labels,
             datasets: [{
                 label: 'Total Yield',
                 backgroundColor: 'rgb(255, 99, 132)',
                 borderColor: 'rgb(255, 99, 132)',
-                data: [150, 50, 80, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+                data: year_data
             }]
         },
 
         // Configuration options go here
         options: {}
     });
-    // end chart2 
 
-    // chart 3
+
+    function next_year() {
+        var m_data = {
+            'year-date': document.getElementById("year-date").value,
+            'action': 'next',
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "<?= PUBLIC_PATH ?>" + 'chart/get_year',
+            data: m_data,
+            success: function(data) {
+                document.getElementById("year-date").value = data.year_date;
+                addData(year_chart, data.data , data.labels );
+            },
+            dataType: 'json'
+        });
+    }
+
+    function pre_year() {
+        var m_data = {
+            'year-date': document.getElementById("year-date").value,
+            'action': 'pre',
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "<?= PUBLIC_PATH ?>" + 'chart/get_year',
+            data: m_data,
+            success: function(data) {
+                document.getElementById("year-date").value = data.year_date;
+                addData(year_chart, data.data , data.labels );
+            },
+            dataType: 'json'
+        });
+    }
+
+    function change_year() {
+        var m_data = {
+            'year-date': document.getElementById("year-date").value,
+            'action': 'change',
+        };
+
+        $.ajax({
+            type: "POST",
+            url: "<?= PUBLIC_PATH ?>" + 'chart/get_year',
+            data: m_data,
+            success: function(data) {
+                addData(year_chart, data.data , data.labels );
+            },
+            dataType: 'json'
+        });
+    }
+
+    // END YEAR CHART
+    /////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////
+
+    // TOTAL Average Voltage CHART
     var ctx = document.getElementById('myChart3').getContext('2d');
     var chart3 = new Chart(ctx, {
         // The type of chart we want to create
@@ -229,19 +322,21 @@
 
         // The data for our dataset
         data: {
-            labels: ['2018', '2019'],
+            labels: <?= $data['total_labels'] ?>,
             datasets: [{
                 label: 'Average Voltage',
                 backgroundColor: 'rgb(255, 99, 132)',
                 borderColor: 'rgb(255, 99, 132)',
-                data: [3000, 250]
+                data: <?= $data['total_data'] ?>
             }]
         },
 
         // Configuration options go here
         options: {}
     });
-    // end chart 3
+    //  END Average Voltage CHART
+    /////////////////////////////////////////////////////////////////////////////
+    /////////////////////////////////////////////////////////////////////////////
 </script>
 
 <!-- gauge chart scripts -->

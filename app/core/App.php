@@ -8,7 +8,7 @@ class App
     public function __construct()
     {
         session_start();
-        define("PUBLIC_PATH", 'http://localhost/monitor/public/');
+        define("PUBLIC_PATH", 'http://192.168.1.4/monitor/public/');
         define("BASE_PATH", 'http://localhost/monitor/');
         $current_url = $this->url();
         date_default_timezone_set("Asia/tehran");

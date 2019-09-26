@@ -1,16 +1,13 @@
 <?php
 
+
 class Home extends Controller
 {
     public function index($name = '')
     {
 
-        // DataLog::where('id', 'like' , '%%')->delete();
-        // echo 'everything destroyed!';
-        // die();
-
         // with 20 seconds delay
-        $datetime = date('Y-m-d H:i:s', strtotime('-160 second'));
+        $datetime = date('Y-m-d H:i:s', strtotime('-20 second'));
         // $datetime = date('Y-m-d H:i:s', time());
         $datalog = DataLog::where('log_time', $datetime)->first();
 
@@ -41,7 +38,9 @@ class Home extends Controller
             $datalog->messages           = '0';
         }
 
+        // insert and delete fake data
         // $this->insert_data();
+        // $this->truncate_all();
 
         $average_power = 0;
         $total_power = 0;
@@ -57,12 +56,20 @@ class Home extends Controller
         }
 
         // get day chart data
-        $labels = $this->labels();
+        $labels  = $this->labels();
         $dataset = $this->dataset();
+
         // get month chart data
         $month_labels = $this->month_labels();
         $month_data   = $this->month_data();
-        $years = $this->get_years();
+        $years        = $this->get_years();
+
+        // get year chart data 
+        $year_labels = $this->year_labels();
+        $year_data   = $this->year_data();
+
+        // get total chart data
+        $total_data   = $this->total_data();
 
         $this->view('home/index',  [
             'datalog'       => $datalog,
@@ -71,8 +78,13 @@ class Home extends Controller
             'total_yield'   => $total_yield,
             'labels'        => json_encode($labels),
             'dataset'       => json_encode($dataset),
-            'month_data'       => json_encode($month_data),
-            'month_labels'       => json_encode($month_labels),
+            'month_data'    => json_encode($month_data),
+            'month_labels'  => json_encode($month_labels),
+            'years'         => $years,
+            'year_data'     => json_encode($year_data),
+            'year_labels'   => json_encode($year_labels),
+            'total_labels'  => json_encode($years),
+            'total_data'    => json_encode($total_data)
         ]);
     }
 
@@ -99,7 +111,7 @@ class Home extends Controller
             $beganOfTime = date('Y-m-d H:i:s', strtotime("midnight") + $sum - 3600);
             $endOfTime   = date('Y-m-d H:i:s', strtotime("midnight") + $sum);
             $log         = DataLog::whereBetween('log_time', [$beganOfTime, $endOfTime])->avg('average_voltage');
-            array_push($data, number_format($log));
+            array_push($data, $log);
             $sum += 3600;
         }
         $dataset = [
@@ -123,7 +135,7 @@ class Home extends Controller
             $beganOfTime = date('Y-m-d H:i:s', strtotime("$day"));
             $endOfTime   = date('Y-m-d H:i:s', strtotime("$day +1 day"));
             $log         = DataLog::whereBetween('log_time', [$beganOfTime, $endOfTime])->avg('average_power');
-            array_push($data, number_format($log));
+            array_push($data, $log);
             $day = date('Y-m-d H:i:s', strtotime("$day +1 day"));
         }
         return $data;
@@ -147,31 +159,99 @@ class Home extends Controller
     {
         $lower_date  = DataLog::orderBy('log_time', 'asc')->pluck('log_time')->first();
         $higher_date = DataLog::orderBy('log_time', 'desc')->pluck('log_time')->first();
-        $lower_year  = date('Y', strtotime($lower_date));
-        $higher_year = date('Y', strtotime($higher_date));
-
-        echo $lower_year . '<br>';
-        echo $higher_year . '<br>';
-        die();
+        $lower_year  = date('Y-m-d', strtotime("$lower_date"));
+        $higher_year = date('Y-m-d', strtotime("$higher_date"));
+        $years = [];
+        $year = $lower_year;
+        while ($year < $higher_year) {
+            $temp_year = date('Y', strtotime("$year"));
+            array_push($years, $temp_year);
+            $year = date('Y-m-d', strtotime("$year +1 year"));
+        }
+        $temp_year = date('Y', strtotime("$year"));
+        array_push($years, $temp_year);
+        return $years;
     }
 
     public function insert_data()
     {
         for ($i = 1; $i <= 7200; $i++) {
-            $datetime =  date('Y-m-d H:i:s', strtotime('-1 year') + $i);
+            $datetime =  date('Y-m-d H:i:s',  strtotime('-1 day'));
             DataLog::create([
                 'log_time'           => $datetime,
-                'global_irradiation' => rand(10 , 1500),
-                'wind_speed'         => rand(0 , 30),
-                'pv_temp'            => rand(10 , 80),
-                'ambient_temp'       => rand(10 , 60),
-                'total_power'        => rand(10 , 12000),
-                'average_power'      => rand(10 , 80),
-                'average_voltage'    => rand(0 , 80),
-                'total_yield'        => rand(10 , 70000),
+                'global_irradiation' => rand(10, 1500),
+                'wind_speed'         => rand(0, 30),
+                'pv_temp'            => rand(10, 80),
+                'ambient_temp'       => rand(10, 60),
+                'total_power'        => rand(10, 12000),
+                'average_power'      => rand(10, 80),
+                'average_voltage'    => rand(0, 80),
+                'total_yield'        => rand(10, 70000),
                 'messages'           => 'OK',
             ]);
         }
+        echo 'data inserted';
         die();
+    }
+
+    public function truncate_all()
+    {
+        DataLog::where('id', 'like', '%%')->delete();
+        echo 'everything destroyed!';
+        die();
+    }
+
+    public function year_data()
+    {
+        $year   = date('Y-01-01', time());
+        $data = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $day_nums = cal_days_in_month(CAL_GREGORIAN, date('m', strtotime($year)), date('Y', strtotime($year)));
+            $beganOfTime = date('Y-m-01', strtotime($year));
+            $endOfTime   = date("Y-m-$day_nums", strtotime($year));
+            $log         = DataLog::whereBetween('log_time', [$beganOfTime, $endOfTime])->avg('total_yield');
+            array_push($data, $log);
+            $year = date('Y-m-d', strtotime(" $year +1 month"));
+        }
+        return $data;
+    }
+
+    public function year_labels()
+    {
+        $year   = date('Y-01-01', time());
+        $labels = [];
+        for ($i = 1; $i <= 12; $i++) {
+            $temp_month = date('M', strtotime($year));
+            $temp_year = date('Y', strtotime($year));
+            array_push($labels, $temp_month . ' ' . $temp_year);
+            $year   = date('Y-m-d', strtotime(" $year +1 month"));
+        }
+        return $labels;
+    }
+
+    public function total_data()
+    {
+        $lower_date  = DataLog::orderBy('log_time', 'asc')->pluck('log_time')->first();
+        $higher_date = DataLog::orderBy('log_time', 'desc')->pluck('log_time')->first();
+        $lower_year  = date('Y-m-d H:i:s', strtotime("$lower_date"));
+        $higher_year = date('Y-m-d H:i:s', strtotime("$higher_date"));
+        $years = [];
+        $year = $lower_year;
+        $data = [];
+        while ($year < $higher_year) {
+            $beganOfTime              = date('Y-01-01', strtotime($year));
+            $number_day_of_this_month = cal_days_in_month(CAL_GREGORIAN, date('m', strtotime($year)), date('Y', strtotime($year)));
+            $endOfTime                = date("Y-12-$number_day_of_this_month  H:i:s", strtotime($year));
+            $log                      = DataLog::whereBetween('log_time', [$beganOfTime, $endOfTime])->avg('average_voltage');
+            array_push($data, $log);
+            $year = date('Y-m-d', strtotime("$year +1 year"));
+        }
+        $beganOfTime              = date('Y-01-01', strtotime($year));
+        $number_day_of_this_month = cal_days_in_month(CAL_GREGORIAN, date('m', strtotime($year)), date('Y', strtotime($year)));
+        $endOfTime                = date("Y-12-$number_day_of_this_month  H:i:s", strtotime($year));
+        $log                      = DataLog::whereBetween('log_time', [$beganOfTime, $endOfTime])->avg('average_voltage');
+        array_push($data, $log);
+        
+        return $data;
     }
 }
