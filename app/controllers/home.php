@@ -5,9 +5,10 @@ class Home extends Controller
 {
     public function index($name = '')
     {
-
+        $settings = Setting::findOrFail(1);
+        $time_delay = $settings->time_delay;
         // with 20 seconds delay
-        $datetime = date('Y-m-d H:i:s', strtotime('-20 second'));
+        $datetime = date('Y-m-d H:i:s', strtotime("-$time_delay second"));
         // $datetime = date('Y-m-d H:i:s', time());
         $datalog = DataLog::where('log_time', $datetime)->first();
 
@@ -72,6 +73,7 @@ class Home extends Controller
         $total_data   = $this->total_data();
 
         $this->view('home/index',  [
+            'settings'      => $settings,
             'datalog'       => $datalog,
             'average_power' => $average_power,
             'total_power'   => $total_power,
@@ -110,12 +112,12 @@ class Home extends Controller
         for ($i = 1; $i <= 24; $i++) {
             $beganOfTime = date('Y-m-d H:i:s', strtotime("midnight") + $sum - 3600);
             $endOfTime   = date('Y-m-d H:i:s', strtotime("midnight") + $sum);
-            $log         = DataLog::whereBetween('log_time', [$beganOfTime, $endOfTime])->avg('average_voltage');
+            $log         = DataLog::whereBetween('log_time', [$beganOfTime, $endOfTime])->avg('total_power');
             array_push($data, $log);
             $sum += 3600;
         }
         $dataset = [
-            'label'           => 'Average Voltage',
+            'label'           => 'Total Power',
             'backgroundColor' => 'rgb(255, 99, 132)',
             'borderColor'     => 'rgb(255, 99, 132)',
             'data'            => $data
@@ -176,7 +178,7 @@ class Home extends Controller
     public function insert_data()
     {
         for ($i = 1; $i <= 7200; $i++) {
-            $datetime =  date('Y-m-d H:i:s',  strtotime('-1 day'));
+            $datetime =  date('Y-m-d H:i:s',  time() +  $i);
             DataLog::create([
                 'log_time'           => $datetime,
                 'global_irradiation' => rand(10, 1500),
@@ -251,7 +253,108 @@ class Home extends Controller
         $endOfTime                = date("Y-12-$number_day_of_this_month  H:i:s", strtotime($year));
         $log                      = DataLog::whereBetween('log_time', [$beganOfTime, $endOfTime])->avg('average_voltage');
         array_push($data, $log);
-        
+
         return $data;
+    }
+
+    public function get_data()
+    {
+        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+            $_POST =json_decode(file_get_contents("php://input")  , true );
+
+            $settings = Setting::findOrFail(1);
+            $time_delay = $settings->time_delay;
+            // with 20 seconds delay
+            $datetime = date('Y-m-d H:i:s', strtotime("-$time_delay second"));
+            // $datetime = date('Y-m-d H:i:s', time());
+            $datalog = DataLog::where('log_time', $datetime)->first();
+
+            if (!$datalog) {
+                // system doesn't set values show network disconnected
+                $datalog = new DataLog();
+                $datalog->global_irradiation = 'network disconnected';
+                $datalog->wind_speed         = 'network disconnected';
+                $datalog->pv_temp            = 'network disconnected';
+                $datalog->ambient_temp       = 'network disconnected';
+                $datalog->total_power        = 'network disconnected';
+                $datalog->average_power      = 'network disconnected';
+                $datalog->average_voltage    = 'network disconnected';
+                $datalog->total_yield        = 'network disconnected';
+                $datalog->messages           = 'network disconnected';
+            }
+
+            if ($datalog->global_irradiation == '0.00000') {
+                // its night show the 0
+                $datalog->global_irradiation = '0';
+                $datalog->wind_speed         = '0';
+                $datalog->pv_temp            = '0';
+                $datalog->ambient_temp       = '0';
+                $datalog->total_power        = '0';
+                $datalog->average_power      = '0';
+                $datalog->average_voltage    = '0';
+                $datalog->total_yield        = '0';
+                $datalog->messages           = '0';
+            }
+            $average_power = 0;
+            $total_power = 0;
+            $total_yield = 0;
+            if ($datalog->average_power != 'network disconnected') {
+                $average_power = $datalog->average_power / 80;
+                $total_power = $datalog->total_power / 12000;
+                $total_yield = $datalog->total_yield / 70000;
+
+                $average_power = number_format($average_power * 100);
+                $total_power = number_format($total_power * 100);
+                $total_yield = number_format($total_yield * 100);
+            }
+
+
+            (isset($average_power)) ? $average_power_chart = $average_power : $average_power_chart = 0;
+            (isset($total_power))   ? $total_power_chart   = $total_power : $total_power_chart     = 0;
+            (isset($total_yield))   ? $total_yield_chart   = $total_yield : $total_yield_chart      = 0;
+
+            ($datalog->global_irradiation == 'network disconnected') ?  $datalog->global_irradiation = 'network disconnected' : $datalog->global_irradiation = number_format($datalog->global_irradiation);
+            ($datalog->wind_speed == 'network disconnected')         ?  $datalog->wind_speed         = 'network disconnected' : $datalog->wind_speed         = number_format($datalog->wind_speed);
+            ($datalog->pv_temp == 'network disconnected')            ?  $datalog->pv_temp            = 'network disconnected' : $datalog->pv_temp            = number_format($datalog->pv_temp);
+            ($datalog->ambient_temp == 'network disconnected')       ?  $datalog->ambient_temp       = 'network disconnected' : $datalog->ambient_temp       = number_format($datalog->ambient_temp);
+            ($datalog->total_power == 'network disconnected')        ?  $datalog->total_power        = 'network disconnected' : $datalog->total_power        = number_format($datalog->total_power);
+            ($datalog->average_power == 'network disconnected')      ?  $datalog->average_power      = 'network disconnected' : $datalog->average_power      = number_format($datalog->average_power);
+            ($datalog->average_voltage == 'network disconnected')    ?  $datalog->average_voltage    = 'network disconnected' : $datalog->average_voltage    = number_format($datalog->average_voltage);
+            ($datalog->total_yield == 'network disconnected')        ?  $datalog->total_yield        = 'network disconnected' : $datalog->total_yield        = number_format($datalog->total_yield);
+
+            // get day chart 
+            $stop_date = new DateTime($_POST['day']);
+            // $stop_date->modify('-1 day');
+            $date = $stop_date->format('Y-m-d');
+            $day_data       = [];
+            $sum        = 3600;
+            for ($i = 1; $i <= 24; $i++) {
+                $beganOfTime = date('Y-m-d H:i:s', strtotime("$date midnight") + $sum - 3600);
+                $endOfTime   = date('Y-m-d H:i:s', strtotime("$date midnight") + $sum);
+                $log         = DataLog::whereBetween('log_time', [$beganOfTime, $endOfTime])->avg('total_power');
+                array_push($day_data, $log);
+                $sum += 3600;
+            }
+
+            $data = [
+                'day_chart_data' => $day_data,
+                'average_power_chart' => $average_power_chart,
+                'total_power_chart'   => $total_power_chart,
+                'total_yield_chart'   => $total_yield_chart,
+                'date'            => date('Y-m-d H:i:s', strtotime("-$time_delay second")),
+                'message'            => $datalog->messages,
+                'global_irradiation' => $datalog->global_irradiation,
+                'wind_speed'         => $datalog->wind_speed,
+                'pv_temp'            => $datalog->pv_temp,
+                'ambient_temp'       => $datalog->ambient_temp,
+                'total_power'        => $datalog->total_power,
+                'average_power'      => $datalog->average_power,
+                'average_voltage'    => $datalog->average_voltage,
+                'total_yield'        => $datalog->total_yield
+            ];
+            echo json_encode($data);
+            die();
+        }
     }
 }

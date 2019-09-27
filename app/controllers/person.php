@@ -113,7 +113,7 @@ class person extends Controller
             $success = [
                 'message' => 'New User Added Successfully.'
             ];
-            $users = User::all();
+            $users = User::latest()->get();
             $this->view('persons/index', [
                 'success' => $success,
                 'users' => $users

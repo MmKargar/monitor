@@ -5,9 +5,11 @@ include_once '../app/views/layouts/sidebar.php';
 
 
 <script>
-    let average_power = "<?= (isset($data['average_power'])) ? $data['average_power'] : 0 ?>";
-    let total_power = "<?= (isset($data['total_power'])) ? $data['total_power'] : 0 ?>";
-    let total_yield = "<?= (isset($data['total_yield'])) ? $data['total_yield'] : 0 ?>";
+    let refresh_rate  = "<?= (isset($data['settings']->refresh_rate)) ? $data['settings']->refresh_rate : 0 ?>";
+    let average_power  = "<?= (isset($data['average_power'])) ? $data['average_power'] : 0 ?>";
+    let total_power    = "<?= (isset($data['total_power'])) ? $data['total_power'] : 0 ?>";
+    let total_yield    = "<?= (isset($data['total_yield'])) ? $data['total_yield'] : 0 ?>";
+    let get_data_route = "<?= PUBLIC_PATH ?>home/get_data";
 </script>
 <!-- ============================================================== -->
 <!-- Page wrapper  -->
@@ -41,7 +43,7 @@ include_once '../app/views/layouts/sidebar.php';
     <!-- ============================================================== -->
     <!-- Container fluid  -->
     <!-- ============================================================== -->
-    <div class="container-fluid">
+    <div class="container-fluid" id="app" >
 
         <!-- ============================================================== -->
         <!-- Start Page Content -->
@@ -50,7 +52,7 @@ include_once '../app/views/layouts/sidebar.php';
         <div class="row">
             <div class="col-lg-12">
                 <div class="card card-body">
-                    time log is : <?= date('Y-m-d H:i:s', strtotime('-20 seconds')) ?> with 20 seconds delay
+                    time log is : {{date}} with <?= $data['settings']->time_delay ?> seconds delay - Refresh Rate Is Every <?= $data['settings']->refresh_rate ?> Second
                 </div>
             </div>
         </div>
@@ -61,7 +63,8 @@ include_once '../app/views/layouts/sidebar.php';
                         <div class="col-md-12 col-lg-12 ">
                             <h3 class="box-title m-b-0 ">Messages</h3>
                             <address>
-                                <?= $data['datalog']->messages ?>
+                                <!-- <?= $data['datalog']->messages ?> -->
+                                {{message}}
                             </address>
                         </div>
                     </div>
@@ -98,7 +101,10 @@ include_once '../app/views/layouts/sidebar.php';
                             <!-- <div class=""><img src="<?= PUBLIC_PATH ?>assets/images/average_power.png" width="85" alt=""></div> -->
                             <div class="m-l-10 align-self-center text-center">
                                 <h5 class="text-muted m-b-0">Average Power</h5>
-                                <h3 class="m-b-0"><?= ($data['datalog']->average_power == 'network disconnected') ?  'network disconnected' : number_format($data['datalog']->average_power) ?></h3>
+                                <h3 class="m-b-0">
+                                    <!-- <?= ($data['datalog']->average_power == 'network disconnected') ?  'network disconnected' : number_format($data['datalog']->average_power) ?> -->
+                                    {{average_power}}
+                                </h3>
                                 <h6 class="text-muted m-b-0">KW</h6>
                             </div>
                         </div>
@@ -116,7 +122,10 @@ include_once '../app/views/layouts/sidebar.php';
                         <div class="d-flex flex-row justify-content-center text-center">
                             <div class="m-l-10 align-self-center justify-content-center">
                                 <h5 class="text-muted m-b-0">Average Voltage</h5>
-                                <h3 class="m-b-0"><?= ($data['datalog']->average_voltage == 'network disconnected') ?  'network disconnected' : number_format($data['datalog']->average_voltage) ?></h3>
+                                <h3 class="m-b-0">
+                                    <!-- <?= ($data['datalog']->average_voltage == 'network disconnected') ?  'network disconnected' : number_format($data['datalog']->average_voltage) ?> -->
+                                    {{average_voltage}}
+                                </h3>
                                 <h6 class="text-muted m-b-0">V</h6>
                             </div>
                         </div>
@@ -136,7 +145,10 @@ include_once '../app/views/layouts/sidebar.php';
                             <!-- <div class=""><img src="<?= PUBLIC_PATH ?>assets/images/total_power.png" width="85" alt=""></div> -->
                             <div class="m-l-10 align-self-center text-center">
                                 <h5 class="text-muted m-b-0" style="text-align:center !important">Total Power</h5>
-                                <h3 class="m-b-0" style="text-align:center !important"><?= ($data['datalog']->total_power == 'network disconnected') ?  'network disconnected' : number_format($data['datalog']->total_power) ?></h3>
+                                <h3 class="m-b-0" style="text-align:center !important">
+                                <!-- <?= ($data['datalog']->total_power == 'network disconnected') ?  'network disconnected' : number_format($data['datalog']->total_power) ?> -->
+                                {{total_power}}
+                            </h3>
                                 <h6 class="text-muted m-b-0" style="text-align:center !important">A</h6>
                             </div>
                         </div>
@@ -155,7 +167,10 @@ include_once '../app/views/layouts/sidebar.php';
                             <!-- <div class=""><img src="<?= PUBLIC_PATH ?>assets/images/total_yield.png" width="85" alt=""></div> -->
                             <div class="m-l-10 align-self-center text-center">
                                 <h5 class="text-muted m-b-0">Total Yield</h5>
-                                <h3 class="m-b-0"><?= ($data['datalog']->total_yield == 'network disconnected') ?  'network disconnected' : number_format($data['datalog']->total_yield) ?></h3>
+                                <h3 class="m-b-0">
+                                    <!-- <?= ($data['datalog']->total_yield == 'network disconnected') ?  'network disconnected' : number_format($data['datalog']->total_yield) ?> -->
+                                    {{total_yield}}
+                                </h3>
                                 <h6 class="text-muted m-b-0">KWH</h6>
                             </div>
                         </div>
@@ -175,7 +190,10 @@ include_once '../app/views/layouts/sidebar.php';
                         <div class="d-flex flex-row justify-content-center">
                             <div class="m-l-10 align-self-center text-center">
                                 <h5 class="text-muted m-b-0">Global Irradiation</h5>
-                                <h3 class="m-b-0"><?= ($data['datalog']->global_irradiation == 'network disconnected') ?  'network disconnected' : number_format($data['datalog']->global_irradiation) ?></h3>
+                                <h3 class="m-b-0">
+                                    <!-- <?= ($data['datalog']->global_irradiation == 'network disconnected') ?  'network disconnected' : number_format($data['datalog']->global_irradiation) ?> -->
+                                    {{global_irradiation}}
+                                </h3>
                                 <h6 class="text-muted m-b-0">W/m2</h6>
                             </div>
                         </div>
@@ -193,7 +211,10 @@ include_once '../app/views/layouts/sidebar.php';
                         <div class="d-flex flex-row justify-content-center text-center">
                             <div class="m-l-10 align-self-center justify-content-center">
                                 <h5 class="text-muted m-b-0">Ambient Temp</h5>
-                                <h3 class="m-b-0"><?= ($data['datalog']->ambient_temp == 'network disconnected') ?  'network disconnected' : number_format($data['datalog']->ambient_temp) ?></h3>
+                                <h3 class="m-b-0">
+                                    <!-- <?= ($data['datalog']->ambient_temp == 'network disconnected') ?  'network disconnected' : number_format($data['datalog']->ambient_temp) ?> -->
+                                    {{ambient_temp}}
+                                </h3>
                                 <h6 class="text-muted m-b-0">Celcius Degrees</h6>
                             </div>
                         </div>
@@ -211,7 +232,10 @@ include_once '../app/views/layouts/sidebar.php';
                         <div class="d-flex flex-row justify-content-center">
                             <div class="m-l-10 align-self-center text-center justify-content-center">
                                 <h5 class="text-muted m-b-0">PV Temp</h5>
-                                <h3 class="m-b-0"><?= ($data['datalog']->pv_temp == 'network disconnected') ?  'network disconnected' : number_format($data['datalog']->pv_temp) ?></h3>
+                                <h3 class="m-b-0">
+                                    <!-- <?= ($data['datalog']->pv_temp == 'network disconnected') ?  'network disconnected' : number_format($data['datalog']->pv_temp) ?> -->
+                                    {{pv_temp}}
+                                </h3>
                                 <h6 class="text-muted m-b-0">Celcius Degrees</h6>
                             </div>
                         </div>
@@ -230,7 +254,10 @@ include_once '../app/views/layouts/sidebar.php';
                         <div class="d-flex flex-row justify-content-center text-center">
                             <div class="m-l-10 align-self-center justify-content-center">
                                 <h5 class="text-muted m-b-0">Wind Speed</h5>
-                                <h3 class="m-b-0"><?= ($data['datalog']->wind_speed == 'network disconnected') ?  'network disconnected' : number_format($data['datalog']->wind_speed) ?></h3>
+                                <h3 class="m-b-0">
+                                    <!-- <?= ($data['datalog']->wind_speed == 'network disconnected') ?  'network disconnected' : number_format($data['datalog']->wind_speed) ?> -->
+                                    {{wind_speed}}
+                                </h3>
                                 <h6 class="text-muted m-b-0">m/s</h6>
                             </div>
                         </div>
@@ -349,6 +376,7 @@ include_once '../app/views/layouts/sidebar.php';
     <!-- End Container fluid  -->
     <!-- ============================================================== -->
 
+    <script src="<?= PUBLIC_PATH ?>js/dashboard.js"></script>
     <?php
     include_once '../app/views/layouts/footer.php';
     ?>

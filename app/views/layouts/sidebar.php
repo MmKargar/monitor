@@ -46,6 +46,8 @@
                 </li>
                 <li> <a class="waves-effect waves-dark" href="<?= PUBLIC_PATH ?>person/index" aria-expanded="false"><i class="mdi mdi-account-multiple"></i><span class="hide-menu">Users</span></a>
                 </li>
+                <li> <a class="waves-effect waves-dark" href="<?= PUBLIC_PATH ?>enviroment/index" aria-expanded="false"><i class="fa fa-cogs"></i><span class="hide-menu">Settings</span></a>
+                </li>
             </ul>
         </nav>
         <!-- End Sidebar navigation -->
@@ -55,5 +57,3 @@
 <!-- ============================================================== -->
 <!-- End Left Sidebar - style you can find in sidebar.scss  -->
 <!-- ============================================================== -->
-
-

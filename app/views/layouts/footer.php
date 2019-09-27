@@ -55,7 +55,7 @@
     var day_data = <?= $data['dataset'] ?>;
     var day_labels = <?= $data['labels'] ?>;
     var ctx = document.getElementById('myChart').getContext('2d');
-    var chart = new Chart(ctx, {
+    var day_chart = new Chart(ctx, {
         // The type of chart we want to create
         type: 'line',
 
@@ -63,7 +63,7 @@
         data: {
             labels: day_labels,
             datasets: [{
-                label: 'Average Voltage',
+                label: 'Total Power',
                 backgroundColor: 'rgb(255, 99, 132)',
                 borderColor: 'rgb(255, 99, 132)',
                 data: day_data
@@ -105,7 +105,7 @@
             data: day,
             success: function(data) {
                 document.getElementById("day-date").value = data.tommorow;
-                addData(chart, data.data);
+                addData( day_chart , data.data );
             },
             dataType: 'json'
         });
@@ -346,7 +346,7 @@
     var averagepower = echarts.init(document.getElementById('averagepower-chart'));
 
     // specify chart configuration item and data
-    option = {
+    averagepower_option = {
         tooltip: {
             formatter: "{a} <br/>{b} : {c}%"
         },
@@ -407,7 +407,7 @@
     };
 
     // use configuration item and data specified to show chart
-    averagepower.setOption(option, true), $(function() {
+    averagepower.setOption(averagepower_option, true), $(function() {
         function resize() {
             setTimeout(function() {
                 averagepower.resize()
@@ -418,12 +418,10 @@
 
 
     // total power
-
-    // total power
     var totalpower = echarts.init(document.getElementById('totalpower-chart'));
 
     // specify chart configuration item and data
-    option = {
+    totalpower_option = {
         tooltip: {
             formatter: "{a} <br/>{b} : {c}%"
         },
@@ -484,7 +482,7 @@
     };
 
     // use configuration item and data specified to show chart
-    totalpower.setOption(option, true), $(function() {
+    totalpower.setOption(totalpower_option, true), $(function() {
         function resize() {
             setTimeout(function() {
                 totalpower.resize()
@@ -500,7 +498,7 @@
     var totalyield = echarts.init(document.getElementById('totalyield-chart'));
 
     // specify chart configuration item and data
-    option = {
+    totalyield_option = {
         tooltip: {
             formatter: "{a} <br/>{b} : {c}%"
         },
@@ -561,7 +559,7 @@
     };
 
     // use configuration item and data specified to show chart
-    totalyield.setOption(option, true), $(function() {
+    totalyield.setOption(totalyield_option, true), $(function() {
         function resize() {
             setTimeout(function() {
                 totalyield.resize()

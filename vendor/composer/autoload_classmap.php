@@ -7,5 +7,6 @@ $baseDir = dirname($vendorDir);
 
 return array(
     'DataLog' => $baseDir . '/app/models/DataLog.php',
+    'Setting' => $baseDir . '/app/models/Setting.php',
     'User' => $baseDir . '/app/models/User.php',
 );

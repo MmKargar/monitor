@@ -20,7 +20,7 @@ class Chart extends Controller
                 for ($i = 1; $i <= 24; $i++) {
                     $beganOfTime = date('Y-m-d H:i:s', strtotime("$tommorow midnight") + $sum - 3600);
                     $endOfTime   = date('Y-m-d H:i:s', strtotime("$tommorow midnight") + $sum);
-                    $log         = DataLog::whereBetween('log_time', [$beganOfTime, $endOfTime])->avg('average_voltage');
+                    $log         = DataLog::whereBetween('log_time', [$beganOfTime, $endOfTime])->avg('total_power');
                     array_push($data, $log);
                     $sum += 3600;
                 }
@@ -40,7 +40,7 @@ class Chart extends Controller
                 for ($i = 1; $i <= 24; $i++) {
                     $beganOfTime = date('Y-m-d H:i:s', strtotime("$pre midnight") + $sum - 3600);
                     $endOfTime   = date('Y-m-d H:i:s', strtotime("$pre midnight") + $sum);
-                    $log         = DataLog::whereBetween('log_time', [$beganOfTime, $endOfTime])->avg('average_voltage');
+                    $log         = DataLog::whereBetween('log_time', [$beganOfTime, $endOfTime])->avg('total_power');
                     array_push($data, $log);
                     $sum += 3600;
                 }
@@ -61,7 +61,7 @@ class Chart extends Controller
                 for ($i = 1; $i <= 24; $i++) {
                     $beganOfTime = date('Y-m-d H:i:s', strtotime("$date midnight") + $sum - 3600);
                     $endOfTime   = date('Y-m-d H:i:s', strtotime("$date midnight") + $sum);
-                    $log         = DataLog::whereBetween('log_time', [$beganOfTime, $endOfTime])->avg('average_voltage');
+                    $log         = DataLog::whereBetween('log_time', [$beganOfTime, $endOfTime])->avg('total_power');
                     array_push($data, $log);
                     $sum += 3600;
                 }

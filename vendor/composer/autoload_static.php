@@ -117,6 +117,7 @@ class ComposerStaticInit6af064ce7e843af5c59fb62e64c1a066
 
     public static $classMap = array (
         'DataLog' => __DIR__ . '/../..' . '/app/models/DataLog.php',
+        'Setting' => __DIR__ . '/../..' . '/app/models/Setting.php',
         'User' => __DIR__ . '/../..' . '/app/models/User.php',
     );
 
